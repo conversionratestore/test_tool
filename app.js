@@ -1,11 +1,11 @@
 import puppeteer from 'puppeteer'
 import express from 'express'
-import fs from 'fs'
 import chalk from 'chalk'
+import chokidar from 'chokidar'
 
 const app = express()
-const testUrl = 'https://natpat.com/en-eu/pages/zenpatch'
-const testFileName = 'buzzpatch/qty_patches.js'
+const testUrl = 'https://weight.ableapp.com/body-ideal-weight'
+const testFileName = 'able/calculator.js'
 
 app.use('/files', express.static('test'))
 
@@ -26,7 +26,11 @@ app.get('/', async (req, res) => {
   await page.goto(testUrl)
   await page.evaluate(insertScript, testFileName)
   console.log(chalk.greenBright('Browser started!'))
-  fs.watchFile(`test/${testFileName}`, async () => {
+  const watcher = chokidar.watch(`test/${testFileName}`, {
+    persistent: true
+  })
+
+  watcher.on('change', async () => {
     console.log(chalk.yellow('File changed!'))
     await page.reload()
     console.log(chalk.yellow('Page reloaded!'))
