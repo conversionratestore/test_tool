@@ -4,8 +4,8 @@ import chalk from 'chalk'
 import chokidar from 'chokidar'
 
 const app = express()
-const testUrl = 'https://weight.ableapp.com/body-ideal-weight'
-const testFileName = 'able/calculator.js'
+const testUrl = 'https://www.paintscratch.com/'
+const testFileName = 'paintscratch/mobile_view.js'
 
 app.use('/files', express.static('test'))
 
@@ -24,8 +24,8 @@ app.get('/', async (req, res) => {
   })
   const page = await browser.newPage()
   await page.goto(testUrl)
-  await page.evaluate(insertScript, testFileName)
   console.log(chalk.greenBright('Browser started!'))
+  page.on('domcontentloaded', scriptInsert)
   const watcher = chokidar.watch(`test/${testFileName}`, {
     persistent: true
   })
@@ -34,9 +34,11 @@ app.get('/', async (req, res) => {
     console.log(chalk.yellow('File changed!'))
     await page.reload()
     console.log(chalk.yellow('Page reloaded!'))
-    await page.evaluate(insertScript, testFileName)
   })
   res.send('Browser launched!')
+  function scriptInsert() {
+    page.evaluate(insertScript, testFileName)
+  }
 })
 
 app.listen(3000, console.log(chalk.green('Example app listening on port 3000!')))
