@@ -1,6 +1,9 @@
-console.log('%c EXP: Trial Selection ', 'background: #3498eb; color: #fccf3a; font-size: 20px; font-weight: bold;')
-const $$el = (selector) => document.querySelectorAll(selector)
-const $el = (selector) => document.querySelector(selector)
+console.log(
+  '%c EXP: Trial Selection (DEV: YK)',
+  'background: #3498eb; color: #fccf3a; font-size: 20px; font-weight: bold;'
+)
+const $$el = selector => document.querySelectorAll(selector)
+const $el = selector => document.querySelector(selector)
 const git = 'https://conversionratestore.github.io/projects/'
 
 // funtion for push data to GA4
@@ -17,28 +20,43 @@ const pushDataLayer = (name, desc, type = '', loc = '') => {
 }
 
 // load script
-const loadScript = (url) => {
+const loadScriptOrStyle = url => {
   return new Promise((resolve, reject) => {
     // check script by document.scripts
-    const loadedScripts = Array.from(document.scripts).map((script) => script.src.toLowerCase())
-    if (loadedScripts.includes(url.toLowerCase())) {
-      console.log(`Script ${url} allready downloaded!`)
-      return resolve('')
+    const type = url.split('.').pop()
+    if (type === 'js') {
+      const loadedScripts = Array.from(document.scripts).map(script => script.src.toLowerCase())
+      if (loadedScripts.includes(url.toLowerCase())) {
+        console.log(`Script ${url} allready downloaded!`)
+        return resolve('')
+      }
+      const script = document.createElement('script')
+      script.src = url
+      script.onload = resolve
+      script.onerror = reject
+      document.head.appendChild(script)
+    } else if (type === 'css') {
+      const loadedStyles = Array.from(document.styleSheets).map(style => style.href.toLowerCase())
+      if (loadedStyles.includes(url.toLowerCase())) {
+        console.log(`Style ${url} allready downloaded!`)
+        return resolve('')
+      }
+      const style = document.createElement('link')
+      style.rel = 'stylesheet'
+      style.href = url
+      style.onload = resolve
+      style.onerror = reject
+      document.head.appendChild(style)
     }
-    const script = document.createElement('script')
-    script.src = url
-    script.onload = resolve
-    script.onerror = reject
-    document.head.appendChild(script)
   })
 }
 // load list of scripts
-const loadScripts = async (scripts) => {
-  for (const script of scripts) {
-    await loadScript(script)
-    console.log(`Loaded script  ${script}`)
+const loadScriptsOrStyles = async urls => {
+  for (const url of urls) {
+    await loadScriptOrStyle(url)
+    console.log(`Loaded librari ${url}`)
   }
-  console.log('All scripts loaded!')
+  console.log('All libraries loaded!')
 }
 
 // clarity script
@@ -83,8 +101,8 @@ const maxScrollDepth = () => {
 // block visibility function
 const blockVisibility = (selector, viewTime, event, location) => {
   let v1 = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((item) => {
+    entries => {
+      entries.forEach(item => {
         if (item.isIntersecting) {
           v1.unobserve(item.target)
           setTimeout(function () {
@@ -98,8 +116,8 @@ const blockVisibility = (selector, viewTime, event, location) => {
     }
   )
 
-  let v2 = new IntersectionObserver((entries) => {
-    entries.forEach((item) => {
+  let v2 = new IntersectionObserver(entries => {
+    entries.forEach(item => {
       if (item.isIntersecting) {
         pushDataLayer(
           event || `view_element_${item.target.id}`,
@@ -115,7 +133,7 @@ const blockVisibility = (selector, viewTime, event, location) => {
     })
   })
 
-  document.querySelectorAll(selector).forEach((item) => {
+  document.querySelectorAll(selector).forEach(item => {
     v1.observe(item)
   })
 }
@@ -123,8 +141,8 @@ const blockVisibility = (selector, viewTime, event, location) => {
 // visible time of block on viewport
 
 function checkFocusTime(selector, event, location) {
-  const checker = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
+  const checker = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
       if (entry.isIntersecting && !entry.target.getAttribute('data-startShow')) {
         entry.target.setAttribute('data-startShow', new Date().getTime())
       } else if (!entry.isIntersecting && entry.target.getAttribute('data-startShow')) {

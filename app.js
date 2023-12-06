@@ -4,8 +4,8 @@ import chalk from 'chalk'
 import chokidar from 'chokidar'
 
 const app = express()
-const testUrl = 'https://www.paintscratch.com/'
-const testFileName = 'paintscratch/mobile_view.js'
+const testUrl = 'https://www.aeyla.co.uk/'
+const testFileName = 'aeyla/cart_upsell.js'
 
 app.use('/files', express.static('test'))
 
