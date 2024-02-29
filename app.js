@@ -12,9 +12,9 @@ const testFileName = process.env.TEST_PATH + '/index.js'
 app.use('/files', express.static('build'))
 
 app.get('/', async (req, res) => {
-  const insertScript = fileName => {
+  const insertScript = (fileName, p) => {
     const scriptTest = document.createElement('script')
-    scriptTest.src = `http://localhost:${port}/files/${fileName}`
+    scriptTest.src = `http://localhost:${p}/files/${fileName}`
     scriptTest.async = true
     document.body.appendChild(scriptTest)
   }
@@ -39,7 +39,7 @@ app.get('/', async (req, res) => {
   })
   res.send('Browser launched!')
   function scriptInsert() {
-    page.evaluate(insertScript, testFileName)
+    page.evaluate(insertScript, testFileName, port)
   }
 })
 
