@@ -1,4 +1,4 @@
-# Tool for A/B testing
+# Test tool V2.0.0
 
 Need more testings!!!
 
@@ -9,11 +9,11 @@ Need more testings!!!
   npm i
 ```
 
-- Change params in `app.js` file
-- Set `testUrl`
-- Set `testFileName`
+- Change params in `.env` file
+- Set `TEST_URL`
+- Set `TEST_PATH`
 
-All test files are located in `test` folder
+All test files are located in `src` folder
 
 ```
   npm start

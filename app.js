@@ -2,17 +2,19 @@ import puppeteer from 'puppeteer'
 import express from 'express'
 import chalk from 'chalk'
 import chokidar from 'chokidar'
+import 'dotenv/config'
 
+const port = process.env.PORT || 3000
 const app = express()
-const testUrl = 'https://www.aeyla.co.uk/'
-const testFileName = 'aeyla/cart_upsell.js'
+const testUrl = process.env.TEST_URL
+const testFileName = process.env.TEST_PATH + '/index.js'
 
-app.use('/files', express.static('test'))
+app.use('/files', express.static('build'))
 
 app.get('/', async (req, res) => {
   const insertScript = fileName => {
     const scriptTest = document.createElement('script')
-    scriptTest.src = `http://localhost:3000/files/${fileName}`
+    scriptTest.src = `http://localhost:${port}/files/${fileName}`
     scriptTest.async = true
     document.body.appendChild(scriptTest)
   }
@@ -26,7 +28,7 @@ app.get('/', async (req, res) => {
   await page.goto(testUrl)
   console.log(chalk.greenBright('Browser started!'))
   page.on('domcontentloaded', scriptInsert)
-  const watcher = chokidar.watch(`test/${testFileName}`, {
+  const watcher = chokidar.watch(`build/${testFileName}`, {
     persistent: true
   })
 
@@ -41,4 +43,4 @@ app.get('/', async (req, res) => {
   }
 })
 
-app.listen(3000, console.log(chalk.green('Example app listening on port 3000!')))
+app.listen(port, console.log(chalk.green(`Example app listening on port ${port}!`)))

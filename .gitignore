@@ -1,2 +1,4 @@
 node_modules
-test/*/*
+src/*/*
+build/*/*
+!src/libraries/* 
