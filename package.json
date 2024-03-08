@@ -21,6 +21,7 @@
   "devDependencies": {
     "@preact/preset-vite": "^2.8.1",
     "@types/jquery": "^3.5.29",
+    "@types/slick-carousel": "^1.6.40",
     "concurrently": "^8.2.2",
     "rollup-plugin-iife": "^0.7.1",
     "typescript": "^5.3.3",

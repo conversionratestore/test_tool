@@ -1,17 +1,14 @@
 declare global {
   interface Window {
     dataLayer: any[]
+    Shopify: any
+    clarity: any
   }
 }
 
-interface DataLayer {
-  name: string
-  desc: string
-  type?: 'click' | 'view' | 'submit' | 'input' | 'change' | 'error' | 'success' | 'other'
-  loc?: string
-}
+type eventType = 'click' | 'view' | 'submit' | 'input' | 'change' | 'error' | 'success' | 'other'
 
-export const pushData = ({ name, desc, type = 'click', loc = '' }: DataLayer) => {
+export const pushData = (name: string, desc: string, type: eventType, loc: string = '') => {
   window.dataLayer = window.dataLayer || []
   window.dataLayer.push({
     event: 'event-to-ga4',
@@ -37,3 +34,97 @@ export const startLog = ({ name, dev }: StartLog) => {
 
 export const $$el = selector => document.querySelectorAll(selector)
 export const $el = selector => document.querySelector(selector)
+
+// load list of scripts
+export const loadScriptsOrStyles = async (urls: string[]) => {
+  const loadScriptOrStyle = (url: string) => {
+    return new Promise((resolve, reject) => {
+      // check script by document.scripts
+      const type = url.split('.').pop()
+      if (type === 'js') {
+        const loadedScripts = Array.from(document.scripts).map(script => script.src.toLowerCase())
+        if (loadedScripts.includes(url.toLowerCase())) {
+          console.log(`Script ${url} allready downloaded!`)
+          return resolve('')
+        }
+        const script = document.createElement('script')
+        script.src = url
+        script.onload = resolve
+        script.onerror = reject
+        document.head.appendChild(script)
+      } else if (type === 'css') {
+        const loadedStyles = Array.from(document.styleSheets).map(style => style.href?.toLowerCase())
+        if (loadedStyles.includes(url.toLowerCase())) {
+          console.log(`Style ${url} allready downloaded!`)
+          return resolve('')
+        }
+        const style = document.createElement('link')
+        style.rel = 'stylesheet'
+        style.href = url
+        style.onload = resolve
+        style.onerror = reject
+        document.head.appendChild(style)
+      }
+    })
+  }
+
+  for (const url of urls) {
+    await loadScriptOrStyle(url)
+    console.log(`Loaded librari ${url}`)
+  }
+  console.log('All libraries loaded!')
+}
+
+// clarity
+export const clarityInterval = name => {
+  let int = setInterval(function () {
+    if (typeof window.clarity == 'function') {
+      clearInterval(int)
+      window.clarity('set', name, 'variant_1')
+    }
+  }, 1000)
+}
+
+// visibility element
+
+export const visibilityOfTime = (
+  selector: string | HTMLElement | Element,
+  eventName: string,
+  visiblePlace: string,
+  description?: string,
+  time = 1000,
+  threshold = 0.5
+) => {
+  let observer: IntersectionObserver
+  let timer: NodeJS.Timeout
+
+  observer = new IntersectionObserver(
+    function (entries) {
+      if (entries[0].isIntersecting === true) {
+        timer = setTimeout(() => {
+          pushData(
+            eventName,
+            (entries[0].target as HTMLElement).dataset.visible || description || '',
+            'view',
+            visiblePlace
+          )
+          observer.disconnect()
+        }, time)
+      } else {
+        console.log('Element is not fully visible')
+        clearTimeout(timer) // Clear the timer if the element is not visible
+      }
+    },
+    { threshold: [threshold] }
+  )
+
+  if (typeof selector === 'string') {
+    const element = document.querySelector(selector)
+
+    if (element) {
+      observer.observe(element)
+    }
+  } else {
+    observer.observe(selector)
+  }
+}

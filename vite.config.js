@@ -25,5 +25,6 @@ export default defineConfig({
         wrapper: '(function(%s){\n%s\n})(%s)'
       }
     })
-  ]
+  ],
+  assetsInclude: ['**/*.css']
 })
